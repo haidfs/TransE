@@ -179,8 +179,12 @@ class TransE(object):
                 if self.normal_form == "L1":
                     temp_positive_L1 = [1 if temp_positive[i] >= 0 else -1 for i in range(self.dim)]
                     temp_negative_L1 = [1 if temp_negative[i] >= 0 else -1 for i in range(self.dim)]
-                    temp_positive = norm(temp_positive_L1) * self.learning_rate
-                    temp_negative = norm(temp_negative_L1) * self.learning_rate
+                    temp_positive_L1 = [float(f) for f in temp_positive_L1]
+                    temp_negative_L1 = [float(f) for f in temp_negative_L1]
+                    temp_positive = np.array(temp_positive_L1) * self.learning_rate
+                    temp_negative = np.array(temp_negative_L1) * self.learning_rate
+                    # temp_positive = norm(temp_positive_L1) * self.learning_rate
+                    # temp_negative = norm(temp_negative_L1) * self.learning_rate
 
                 # 对损失函数的5个参数进行梯度下降， 随机体现在sample函数上
                 head_entity_vector += temp_positive
