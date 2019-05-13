@@ -1,12 +1,9 @@
 from random import uniform, sample, choice
 import numpy as np
 from copy import deepcopy
-import time
-from multiprocessing import Pool
 from multiprocessing import Process, Value, Lock
 from multiprocessing.managers import BaseManager
-import multiprocessing
-from numba import jit
+import time
 
 
 def get_details_of_entityOrRels_list(file_path, split_delimeter="\t"):
@@ -36,27 +33,27 @@ def get_details_of_triplets_list(file_path, split_delimeter="\t"):
 
 
 def norm(lyst):
-    # å½’ä¸€åŒ– å•ä½å‘é‡
+    # ¹éÒ»»¯ µ¥Î»ÏòÁ¿
     var = np.linalg.norm(lyst)
     i = 0
     while i < len(lyst):
         lyst[i] = lyst[i] / var
         i += 1
-    # éœ€è¦è¿”å›arrayå€¼ å› ä¸ºlistä¸æ”¯æŒå‡æ³•
+    # ĞèÒª·µ»ØarrayÖµ ÒòÎªlist²»Ö§³Ö¼õ·¨
     # return list
     return np.array(lyst)
 
 
 def dist_L1(h, t, l):
     s = h + l - t
-    # æ›¼å“ˆé¡¿è·ç¦»/å‡ºç§Ÿè½¦è·ç¦»ï¼Œ |x-xi|+|y-yi|ç›´æ¥å¯¹å‘é‡çš„å„ä¸ªç»´åº¦å–ç»å¯¹å€¼ç›¸åŠ 
+    # Âü¹ş¶Ù¾àÀë/³ö×â³µ¾àÀë£¬ |x-xi|+|y-yi|Ö±½Ó¶ÔÏòÁ¿µÄ¸÷¸öÎ¬¶ÈÈ¡¾ø¶ÔÖµÏà¼Ó
     # dist = np.fabs(s).sum()
     return np.fabs(s).sum()
 
 
 def dist_L2(h, t, l):
     s = h + l - t
-    # æ¬§æ°è·ç¦»,æ˜¯å‘é‡çš„å¹³æ–¹å’Œæœªå¼€æ–¹ã€‚ä¸€å®šè¦æ³¨æ„ï¼Œå½’ä¸€åŒ–å…¬å¼å’Œè·ç¦»å…¬å¼çš„é”™è¯¯ä¹¦å†™ï¼Œä¼šå¼•èµ·æ”¶æ•›çš„å¤±è´¥
+    # Å·ÊÏ¾àÀë,ÊÇÏòÁ¿µÄÆ½·½ºÍÎ´¿ª·½¡£Ò»¶¨Òª×¢Òâ£¬¹éÒ»»¯¹«Ê½ºÍ¾àÀë¹«Ê½µÄ´íÎóÊéĞ´£¬»áÒıÆğÊÕÁ²µÄÊ§°Ü
     # dist = (s * s).sum()
     return (s * s).sum()
 
@@ -65,7 +62,7 @@ class TransE(object):
     def __init__(self, entity_list, rels_list, triplets_list, margin=1, learing_rate=0.01, dim=50, normal_form="L1"):
         self.learning_rate = learing_rate
         self.loss = 0
-        self.entity_list = entity_list  # entityListæ˜¯entityçš„listï¼›åˆå§‹åŒ–åï¼Œå˜ä¸ºå­—å…¸ï¼Œkeyæ˜¯entityï¼Œvaluesæ˜¯å…¶å‘é‡ï¼ˆä½¿ç”¨narrayï¼‰ã€‚
+        self.entity_list = entity_list  # entityListÊÇentityµÄlist£»³õÊ¼»¯ºó£¬±äÎª×Öµä£¬keyÊÇentity£¬valuesÊÇÆäÏòÁ¿£¨Ê¹ÓÃnarray£©¡£
         self.rels_list = rels_list
         self.triplets_list = triplets_list
         self.margin = margin
@@ -75,9 +72,23 @@ class TransE(object):
         self.rels_vector_dict = {}
         self.loss_list = []
 
+    def get_loss(self):
+        # ²Î¿¼Çå»ªµÄFast-TransXµÄC++´úÂë£¬È·ÊµËÙ¶ÈºÜ¿ì£¬Python½Ó½ü5¸öĞ¡Ê±µÄÑµÁ·C++´ó¸ÅÔÚÊ®¼¸·ÖÖÓ¼´¿ÉÍê³É¡£´ÖÂÔµÄ¿´ÁËÒ»ÏÂ´úÂë£¬
+        # Ëü¶ÔÔ­±¾µÄÂÛÎÄÖĞµÄSbatch×öÁËĞŞ¸Ä£¬Ö±½Ó½øĞĞÁË£¨×ÜÊıÁ¿ÎªÑµÁ·ÈıÔª×éÊı£¬Ò»¸öepoch·ÖÎª¶à¸öbatchÍê³É£¬Ã¿¸öbatchµÄÃ¿Ò»¸öÈıÔª×é¶¼Ëæ»ú²ÉÑù£©£¬Ëæ»úÌİ¶ÈÏÂ½µ¡£¶àÏß³Ì²¢·¢£¬n¸öbatch¶ÔÓ¦n¸öÏß³Ì
+        # PythonÓÉÓÚÀúÊ·ÒÅÁôÎÊÌâ£¬Ê¹ÓÃÁËGIL£¬È«¾Ö½âÊÍËø£¬Ê¹µÃPythonµÄ¶àÏß³Ì½üËÆ¼¦Àß£¬ÎŞ·¨ÅÜÂú¶àºËcpu£¬ËùÒÔ¿¼ÂÇÊ¹ÓÃ¶à½ø³ÌÓÅ»¯
+        # ÎªÁËÊ¹ÓÃ¶à½ø³Ì£¬Ê¹ÓÃÁËmanager½«transE·â×°ÎªProxy¶ÔÏó¡£ÓÉÓÚProxy¶ÔÏóÎŞ·¨»ñÈ¡·â×°µÄTransEÀàµÄÊôĞÔ£¬ËùÒÔĞèÒªĞ´getº¯Êı½«loss´«³ö¡£
+        # ÁíÍâÖµµÃ×¢ÒâµÄÊÇ£¬PythonµÄ¶à½ø³ÌĞÔÄÜ²»Ò»¶¨ÓÅÓÚforÑ­»·¡£»ù±¾¿ªÏú¾Í°üÀ¨ÁË½ø³ÌµÄ´´½¨ºÍÏú»Ù¡¢ÉÏÏÂÎÄÇĞ»»£¨½ø³Ì¼äĞèÒªRPCÔ¶³ÌÍ¨ĞÅÒÔ×öµ½Àà±äÁ¿¹²Ïí£©¡£
+        # ÖÁÉÙÔÚtrainTransEºÍtrainTransE_MultiProcess¶Ô±ÈÀ´¿´£¬trainTransEµÄforÑ­»·Ò»Åú10¸öºÄÊ±ÔÚ8s-9s£¬trainTransE_MultiProcessµÄÒ»¸öepoch¼´Ò»Åú£¬ºÄÊ±ÔÚ12-13s¡£
+        # ½øÒ»²½ÓÅ»¯·½·¨£º½ø³Ì³Ø£¬ÊµÏÖ½ø³Ì¸´ÓÃ£¿¿ò¼Ü£ºtf£¿£¿
+        return self.loss
+
+    def clear_loss(self):
+        # ¸Ãº¯ÊıÒ²ÊÇÎªÁËProxy¶ÔÏóÍâ²¿½«ËğÊ§ÖÃ0
+        self.loss = 0
+
     def initialize(self):
-        """å¯¹è®ºæ–‡ä¸­çš„åˆå§‹åŒ–ç¨åŠ æ”¹åŠ¨
-        åˆå§‹åŒ–lå’Œeï¼Œå¯¹äºåŸæœ¬çš„lå’Œeçš„æ–‡ä»¶ä¸­çš„/m/06rf7å­—ç¬¦ä¸²æ ‡è¯†è½¬åŒ–ä¸ºå®šä¹‰çš„dimç»´å‘é‡ï¼Œå¯¹dimç»´å‘é‡è¿›è¡Œuniformå’Œnormå½’ä¸€åŒ–æ“ä½œ
+        """¶ÔÂÛÎÄÖĞµÄ³õÊ¼»¯ÉÔ¼Ó¸Ä¶¯
+        ³õÊ¼»¯lºÍe£¬¶ÔÓÚÔ­±¾µÄlºÍeµÄÎÄ¼şÖĞµÄ/m/06rf7×Ö·û´®±êÊ¶×ª»¯Îª¶¨ÒåµÄdimÎ¬ÏòÁ¿£¬¶ÔdimÎ¬ÏòÁ¿½øĞĞuniformºÍnorm¹éÒ»»¯²Ù×÷
         """
         entity_vector_dict, rels_vector_dict = {}, {}
         entity_vector_compo_list, rels_vector_compo_list = [], []
@@ -97,53 +108,32 @@ class TransE(object):
         self.entity_vector_dict = entity_vector_dict
         self.rels_vector_dict = rels_vector_dict
 
-    def transE(self, cycle_index=20):
-        count = 0
-        print("\n********** Start TransE training **********")
-        for i in range(cycle_index):
-
-            if count == 0:
-                start_time = time.time()
-            count += 1
-
-            if i % 10 == 0 and i != 0:
-                print("----------------The {} batches----------------".format(i))
-                print("The loss is: %.4f" % self.loss)
-                # æŸ¥çœ‹æœ€åçš„ç»“æœæ”¶æ•›æƒ…å†µ
-                self.loss_list.append(self.loss)
-                # self.write_vector("data/entityVector.txt", "entity")
-                # self.write_vector("data/relationVector.txt", "rels")
-                self.loss = 0
-                count = 0
-                end_time = time.time()
-                print("One epoch takes %.2f ms." % ((end_time - start_time) * 1000))
-                start_time = end_time
-
-            Sbatch = self.sample(1500)
-            Tbatch = []  # å…ƒç»„å¯¹ï¼ˆåŸä¸‰å…ƒç»„ï¼Œæ‰“ç¢çš„ä¸‰å…ƒç»„ï¼‰çš„åˆ—è¡¨ ï¼š{((h,r,t),(h',r,t'))}
-            for sbatch in Sbatch:
-                triplets_with_corrupted_triplets = (sbatch, self.get_corrupted_triplets(sbatch))
-                if triplets_with_corrupted_triplets not in Tbatch:
-                    Tbatch.append(triplets_with_corrupted_triplets)
-            self.update(Tbatch)
+    def transE(self, cycle_index=1, num=1500):
+        Sbatch = self.sample(num)
+        Tbatch = []  # Ôª×é¶Ô£¨Ô­ÈıÔª×é£¬´òËéµÄÈıÔª×é£©µÄÁĞ±í £º{((h,r,t),(h',r,t'))}
+        for sbatch in Sbatch:
+            triplets_with_corrupted_triplets = (sbatch, self.get_corrupted_triplets(sbatch))
+            if triplets_with_corrupted_triplets not in Tbatch:
+                Tbatch.append(triplets_with_corrupted_triplets)
+        self.update(Tbatch)
 
     def sample(self, size):
         return sample(self.triplets_list, size)
 
     def get_corrupted_triplets(self, triplets):
         '''training triplets with either the head or tail replaced by a random entity (but not both at the same time)
-        :param triplet:å•ä¸ªï¼ˆh,t,lï¼‰
+        :param triplet:µ¥¸ö£¨h,t,l£©
         :return corruptedTriplet:'''
         # i = uniform(-1, 1) if i
         coin = choice([True, False])
-        # ç”±äºè¿™ä¸ªæ—¶å€™çš„(h,t,l)æ˜¯ä»trainæ–‡ä»¶é‡Œé¢æŠ½å‡ºæ¥çš„ï¼Œè¦æ‰“åçš„è¯ç›´æ¥éšæœºå¯»æ‰¾ä¸€ä¸ªå’Œå¤´å®ä½“ä¸ç­‰çš„å®ä½“å³å¯
-        if coin:  # æŠ›ç¡¬å¸ ä¸ºçœŸ æ‰“ç ´å¤´å®ä½“ï¼Œå³ç¬¬ä¸€é¡¹
+        # ÓÉÓÚÕâ¸öÊ±ºòµÄ(h,t,l)ÊÇ´ÓtrainÎÄ¼şÀïÃæ³é³öÀ´µÄ£¬Òª´ò»µµÄ»°Ö±½ÓËæ»úÑ°ÕÒÒ»¸öºÍÍ·ÊµÌå²»µÈµÄÊµÌå¼´¿É
+        if coin:  # Å×Ó²±Ò ÎªÕæ ´òÆÆÍ·ÊµÌå£¬¼´µÚÒ»Ïî
             while True:
-                searching_entity = sample(self.entity_vector_dict.keys(), 1)[0]  # å–ç¬¬ä¸€ä¸ªå…ƒç´ æ˜¯å› ä¸ºsampleè¿”å›çš„æ˜¯ä¸€ä¸ªåˆ—è¡¨ç±»å‹
+                searching_entity = sample(self.entity_vector_dict.keys(), 1)[0]  # È¡µÚÒ»¸öÔªËØÊÇÒòÎªsample·µ»ØµÄÊÇÒ»¸öÁĞ±íÀàĞÍ
                 if searching_entity != triplets[0]:
                     break
             corrupted_triplets = (searching_entity, triplets[1], triplets[2])
-        else:  # åä¹‹ï¼Œæ‰“ç ´å°¾å®ä½“ï¼Œå³ç¬¬äºŒé¡¹
+        else:  # ·´Ö®£¬´òÆÆÎ²ÊµÌå£¬¼´µÚ¶şÏî
             while True:
                 searching_entity = sample(self.entity_vector_dict.keys(), 1)[0]
                 if searching_entity != triplets[1]:
@@ -185,7 +175,7 @@ class TransE(object):
                                                   tail_entity_vector_with_corrupted_triplets_before_batch,
                                                   relation_vector_before_batch)
             eg = self.margin + dist_triplets - dist_corrupted_triplets
-            if eg > 0:  # å¤§äº0å–åŸå€¼ï¼Œå°äº0åˆ™ç½®0.å³åˆé¡µæŸå¤±å‡½æ•°margin-based ranking criterion
+            if eg > 0:  # ´óÓÚ0È¡Ô­Öµ£¬Ğ¡ÓÚ0ÔòÖÃ0.¼´ºÏÒ³ËğÊ§º¯Êımargin-based ranking criterion
                 self.loss += eg
                 temp_positive = 2 * self.learning_rate * (
                         tail_entity_vector_before_batch - head_entity_vector_before_batch - relation_vector_before_batch)
@@ -194,19 +184,21 @@ class TransE(object):
                 if self.normal_form == "L1":
                     temp_positive_L1 = [1 if temp_positive[i] >= 0 else -1 for i in range(self.dim)]
                     temp_negative_L1 = [1 if temp_negative[i] >= 0 else -1 for i in range(self.dim)]
-                    # temp_positive = norm(temp_positive_L1) * self.learning_rate
-                    # temp_negative = norm(temp_negative_L1) * self.learning_rate
+                    temp_positive_L1 = [float(f) for f in temp_positive_L1]
+                    temp_negative_L1 = [float(f) for f in temp_negative_L1]
                     temp_positive = np.array(temp_positive_L1) * self.learning_rate
                     temp_negative = np.array(temp_negative_L1) * self.learning_rate
+                    # temp_positive = norm(temp_positive_L1) * self.learning_rate
+                    # temp_negative = norm(temp_negative_L1) * self.learning_rate
 
-                # å¯¹æŸå¤±å‡½æ•°çš„5ä¸ªå‚æ•°è¿›è¡Œæ¢¯åº¦ä¸‹é™ï¼Œ éšæœºä½“ç°åœ¨sampleå‡½æ•°ä¸Š
+                # ¶ÔËğÊ§º¯ÊıµÄ5¸ö²ÎÊı½øĞĞÌİ¶ÈÏÂ½µ£¬ Ëæ»úÌåÏÖÔÚsampleº¯ÊıÉÏ
                 head_entity_vector += temp_positive
                 tail_entity_vector -= temp_positive
                 relation_vector = relation_vector + temp_positive - temp_negative
                 head_entity_vector_with_corrupted_triplets -= temp_negative
                 tail_entity_vector_with_corrupted_triplets += temp_negative
 
-                # å½’ä¸€åŒ–åˆšæ‰æ›´æ–°çš„å‘é‡ï¼Œå‡å°‘è®¡ç®—æ—¶é—´
+                # ¹éÒ»»¯¸Õ²Å¸üĞÂµÄÏòÁ¿£¬¼õÉÙ¼ÆËãÊ±¼ä
                 entity_vector_copy[triplets_with_corrupted_triplets[0][0]] = norm(head_entity_vector)
                 entity_vector_copy[triplets_with_corrupted_triplets[0][1]] = norm(tail_entity_vector)
                 rels_vector_copy[triplets_with_corrupted_triplets[0][2]] = norm(relation_vector)
@@ -229,7 +221,7 @@ class TransE(object):
             print("Write relationships vector into file: {}".format(file_path))
             # dyct = deepcopy(self.rels_vector_dict)
             dyct = self.rels_vector_dict
-        with open(file_path, 'w') as file:  # å†™æ–‡ä»¶ï¼Œæ¯æ¬¡è¦†ç›–å†™ ç”¨withè‡ªåŠ¨è°ƒç”¨close
+        with open(file_path, 'w') as file:  # Ğ´ÎÄ¼ş£¬Ã¿´Î¸²¸ÇĞ´ ÓÃwith×Ô¶¯µ÷ÓÃclose
             for dyct_key in dyct.keys():
                 file.write(dyct_key + "\t")
                 file.write(str(dyct[dyct_key].tolist()))
@@ -240,7 +232,7 @@ class TransE(object):
             lyst = deepcopy(self.loss_list)
             for i in range(len(lyst)):
                 if num_of_col == 1:
-                    # ä¿ç•™4ä½å°æ•°
+                    # ±£Áô4Î»Ğ¡Êı
                     file.write(str(int(lyst[i] * 10000) / 10000) + "\n")
                     # file.write(str(lyst[i]).split('.')[0] + '.' + str(lyst[i]).split('.')[1][:4] + "\n")
                 else:
@@ -248,6 +240,24 @@ class TransE(object):
                     file.write(str(int(lyst[i] * 10000) / 10000) + "    ")
                     if (i + 1) % num_of_col == 0 and i != 0:
                         file.write("\n")
+
+
+class MyManager(BaseManager):
+    pass
+
+
+def Manager2():
+    m = MyManager()
+    m.start()
+    return m
+
+
+MyManager.register('TransE', TransE)
+
+
+def func1(em, lock, num):
+    with lock:
+        em.transE(num=num)
 
 
 if __name__ == "__main__":
@@ -258,16 +268,29 @@ if __name__ == "__main__":
     train_file_path = "data/FB15k/train.txt"
     num_of_triplets, triplets_list = get_details_of_triplets_list(train_file_path)
 
-    transE = TransE(entity_list, rels_list, triplets_list, margin=1, dim=50)
+    manager = Manager2()
+
+    transE = manager.TransE(entity_list, rels_list, triplets_list, margin=1, dim=50)
     print("\nTransE is initializing...")
     transE.initialize()
-    transE.transE(20000)
+    print("\n********** Start TransE training **********")
 
-    # transE.transE2(num_of_epochs=1000, epoch_triplets=15000, num_of_batches=10)
+    for i in range(20000):  # epochµÄ´ÎÊı
+        start_time = time.time()
+        lock = Lock()
+        proces = [Process(target=func1, args=(transE, lock, 1500)) for j in range(10)]
+        for p in proces:
+            p.start()
+        for p in proces:
+            p.join()
+        print("The loss is %.4f" % transE.get_loss())
+        transE.clear_loss()
+        end_time = time.time()
+        print("The %d epoch(10 batches) takes %.2f ms.\n" % (i, (end_time - start_time) * 1000))
+    # transE.transE(100000)
     print("********** End TransE training ***********\n")
-    # è®­ç»ƒçš„æ‰¹æ¬¡å¹¶ä¸ä¸€å®šæ˜¯100çš„æ•´æ•°å€ï¼Œå°†æœ€åæ›´æ–°çš„å‘é‡å†™åˆ°æ–‡ä»¶
+    # ÑµÁ·µÄÅú´Î²¢²»Ò»¶¨ÊÇ100µÄÕûÊı±¶£¬½«×îºó¸üĞÂµÄÏòÁ¿Ğ´µ½ÎÄ¼ş
     transE.write_vector("data/entityVector.txt", "entity")
     transE.write_vector("data/relationVector.txt", "relationship")
     transE.write_loss("data/lossList_25cols.txt", 25)
     transE.write_loss("data/lossList_1cols.txt", 1)
-
