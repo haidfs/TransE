@@ -23,7 +23,7 @@ python TestTransEMpQueue.py
  python TestMainTF.py
 tf与多进程测试加速，效果显著，测试结束仅需要8min左右。
 ### 最终测试结果
-
+![image](https://github.com/haidfs/TransE/blob/master/images/TestResult.png)
 ### THANKS TO
 感谢两位前辈的代码，基本是在他们的基础上学习整理  
 https://github.com/wuxiyu/transE  
