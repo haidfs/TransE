@@ -1,3 +1,4 @@
+# -*- coding: UTF-8 -*-
 import numpy as np
 from multiprocessing import Process, Queue
 import logging
@@ -72,16 +73,16 @@ class TransE(TransESimple):
         entity_vector_copy = self.entity_vector_dict
         rels_vector_copy = self.rels_vector_dict
 
-        # ÕâÀïµÄh,t,r´ú±íÍ·ÊµÌåÏòÁ¿¡¢Î²ÊµÌåÏòÁ¿¡¢¹ØÏµÏòÁ¿£¬h2ºÍt2´ú±íÂÛÎÄÖĞµÄh'ºÍt'£¬¼´¸ºÀıÈıÔª×éÖĞµÄÍ·Î²ÊµÌåÏòÁ¿
-        # TbatchÊÇÔª×é¶Ô£¨Ô­ÈıÔª×é£¬´òËéµÄÈıÔª×é£©µÄÁĞ±í
-        # £º[((h,r,t),(h',r,t'))...]£¬ÕâÀïÓÉÓÚdataÎÄ¼şµÄÔ­ÒòÊÇ(h,t,r)
+        # è¿™é‡Œçš„h,t,rä»£è¡¨å¤´å®ä½“å‘é‡ã€å°¾å®ä½“å‘é‡ã€å…³ç³»å‘é‡ï¼Œh2å’Œt2ä»£è¡¨è®ºæ–‡ä¸­çš„h'å’Œt'ï¼Œå³è´Ÿä¾‹ä¸‰å…ƒç»„ä¸­çš„å¤´å°¾å®ä½“å‘é‡
+        # Tbatchæ˜¯å…ƒç»„å¯¹ï¼ˆåŸä¸‰å…ƒç»„ï¼Œæ‰“ç¢çš„ä¸‰å…ƒç»„ï¼‰çš„åˆ—è¡¨
+        # ï¼š[((h,r,t),(h',r,t'))...]ï¼Œè¿™é‡Œç”±äºdataæ–‡ä»¶çš„åŸå› æ˜¯(h,t,r)
         h = entity_vector_copy[pos_triplet[0]]
         t = entity_vector_copy[pos_triplet[1]]
         r = rels_vector_copy[pos_triplet[2]]
-        # Ëğ»µÈıÔª×éÖĞµÄÍ·ÊµÌåÏòÁ¿ÓëÎ²ÊµÌåÏòÁ¿
+        # æŸåä¸‰å…ƒç»„ä¸­çš„å¤´å®ä½“å‘é‡ä¸å°¾å®ä½“å‘é‡
         h2 = entity_vector_copy[neg_triplet[0]]
         t2 = entity_vector_copy[neg_triplet[1]]
-        # ÔÚÕâÀïÔ­±¾¶¨ÒåÁËbeforebatch£¬µ«ÊÇ¸öÈËÈÏÎªÃ»ÓĞ±ØÒª£¬ÕâÀïÒÑ¾­½øÈëµ½batchÀïÃæÁË£¬×ßµÄ¾ÍÊÇµ¥¸ö´¦Àí
+        # åœ¨è¿™é‡ŒåŸæœ¬å®šä¹‰äº†beforebatchï¼Œä½†æ˜¯ä¸ªäººè®¤ä¸ºæ²¡æœ‰å¿…è¦ï¼Œè¿™é‡Œå·²ç»è¿›å…¥åˆ°batché‡Œé¢äº†ï¼Œèµ°çš„å°±æ˜¯å•ä¸ªå¤„ç†
         if self.normal_form == "L1":
             dist_triplets = dist_L1(h, t, r)
             dist_corrupted_triplets = dist_L1(h2, t2, r)
@@ -89,7 +90,7 @@ class TransE(TransESimple):
             dist_triplets = dist_L2(h, t, r)
             dist_corrupted_triplets = dist_L2(h2, t2, r)
         eg = self.margin + dist_triplets - dist_corrupted_triplets
-        if eg > 0:  # ´óÓÚ0È¡Ô­Öµ£¬Ğ¡ÓÚ0ÔòÖÃ0.¼´ºÏÒ³ËğÊ§º¯Êımargin-based ranking criterion
+        if eg > 0:  # å¤§äº0å–åŸå€¼ï¼Œå°äº0åˆ™ç½®0.å³åˆé¡µæŸå¤±å‡½æ•°margin-based ranking criterion
             self.loss += eg
             temp_positive = 2 * self.learning_rate * (t - h - r)
             temp_negative = 2 * self.learning_rate * (t2 - h2 - r)
@@ -99,14 +100,14 @@ class TransE(TransESimple):
                 temp_positive = np.array(temp_positive_L1) * self.learning_rate
                 temp_negative = np.array(temp_negative_L1) * self.learning_rate
 
-            # ¶ÔËğÊ§º¯ÊıµÄ5¸ö²ÎÊı½øĞĞÌİ¶ÈÏÂ½µ£¬ Ëæ»úÌåÏÖÔÚsampleº¯ÊıÉÏ
+            # å¯¹æŸå¤±å‡½æ•°çš„5ä¸ªå‚æ•°è¿›è¡Œæ¢¯åº¦ä¸‹é™ï¼Œ éšæœºä½“ç°åœ¨sampleå‡½æ•°ä¸Š
             h += temp_positive
             t -= temp_positive
             r = r + temp_positive - temp_negative
             h2 -= temp_negative
             t2 += temp_negative
 
-            # ¹éÒ»»¯¸Õ²Å¸üĞÂµÄÏòÁ¿£¬¼õÉÙ¼ÆËãÊ±¼ä
+            # å½’ä¸€åŒ–åˆšæ‰æ›´æ–°çš„å‘é‡ï¼Œå‡å°‘è®¡ç®—æ—¶é—´
             entity_vector_copy[pos_triplet[0]] = norm(h)
             entity_vector_copy[pos_triplet[1]] = norm(t)
             rels_vector_copy[pos_triplet[2]] = norm(r)
@@ -131,6 +132,9 @@ def main():
     for epoch in range(2000):
         print("Mp Queue TransE, After %d training epoch(s):\n" % epoch)
         transE.launch_training()
+        if epoch % 100 == 0:
+            transE.write_vector("data/entityVectorMpQueue.txt", "entity")
+            transE.write_vector("data/relationVectorMpQueue.txt", "rels")
     logging.info("********** End TransE training ***********\n")
 
 

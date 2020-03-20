@@ -1,3 +1,4 @@
+# -*- coding: UTF-8 -*-
 from numpy import *
 import operator
 import logging
@@ -10,17 +11,17 @@ logging.basicConfig(level=logging.DEBUG, format=LOG_FORMAT)
 
 
 class Test:
-    '''»ù±¾µÄÆÀ¼Û¹ý³Ì
-¼ÙÉèÕû¸öÖªÊ¶¿âÖÐÒ»¹²ÓÐn¸öÊµÌå£¬ÄÇÃ´ÆÀ¼Û¹ý³ÌÈçÏÂ£º
-¶ÔÓÚÃ¿Ò»¸ö²âÊÔµÄÈýÔª×éaÖÐµÄÍ·ÊµÌå»òÕßÎ²ÊµÌå£¬ÒÀ´ÎÌæ»»ÎªÕû¸öÖªÊ¶¿âÖÐµÄËùÓÐÆäËüÊµÌå£¬Ò²¾ÍÊÇ»á²úÉún¸öÈýÔª×é¡£
-·Ö±ð¶ÔÉÏÊön¸öÈýÔª×é¼ÆËãÆäÄÜÁ¿Öµ(distÖµ)£¬ÔÚtransEÖÐ£¬¾ÍÊÇ¼ÆËãh+r-tµÄÖµ¡£ÕâÑù¿ÉÒÔµÃµ½n¸öÄÜÁ¿Öµ£¬·Ö±ð¶ÔÓ¦ÉÏÊön¸öÈýÔª×é¡£
-¶ÔÉÏÊön¸öÄÜÁ¿Öµ½øÐÐÉýÐòÅÅÐò¡£
-¼ÇÂ¼Ô­±¾µÄÈýÔª×éaµÄÄÜÁ¿ÖµÅÅÐòºóµÄÐòºÅ¡£
-¶ÔËùÓÐ´¦ÔÚ²âÊÔ¼¯ÖÐµÄ²âÊÔÈýÔª×éÖØ¸´ÉÏÊö¹ý³Ì¡£
-Ã¿¸öÕýÈ·ÈýÔª×éµÄÄÜÁ¿ÖµÅÅÐòºóµÄÐòºÅÇóÆ½¾ù£¬µÃµ½µÄÖµÎÒÃÇ³ÆÎªMean Rank¡£
-¼ÆËãÕýÈ·ÈýÔª×éµÄÄÜÁ¿ÅÅÐòºóµÄÐòºÅÐ¡ÓÚ10µÄ±ÈÀý£¬µÃµ½µÄÖµÎÒÃÇ³ÆÎªHits@10¡£
-ÉÏÊö¾ÍÊÇÆÀ¼ÛµÄ¹ý³Ì£¬¹²ÓÐÁ½¸öÖ¸±ê£ºMean RankºÍHits@10¡£ÆäÖÐMean RankÔ½Ð¡Ô½ºÃ£¬Hits@10Ô½´óÔ½ºÃ¡£¸Ã´úÂëÎ´¼ÆËãHits@10£¬ÇÒPython¶ÔÓÚÕâÖÖ´óÁ¿¼ÆËãËÙ¶ÈºÜÂý¡£
-½¨Òé¶ÁÕßºóÐøÊ¹ÓÃÇå»ª´óÑ§¿âµÄFast_TransX´úÂë£¬Ê¹ÓÃC++±àÐ´£¬ÐÔÄÜ¸ß£¬ÄÜ¹»¿ìËÙµÃ³öÑµÁ·ºÍ²âÊÔ½á¹û¡£
+    '''ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Û¹ï¿½ï¿½ï¿½
+ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ÖªÊ¶ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½nï¿½ï¿½Êµï¿½å£¬ï¿½ï¿½Ã´ï¿½ï¿½ï¿½Û¹ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Â£ï¿½
+ï¿½ï¿½ï¿½ï¿½Ã¿Ò»ï¿½ï¿½ï¿½ï¿½ï¿½Ôµï¿½ï¿½ï¿½Ôªï¿½ï¿½aï¿½Ðµï¿½Í·Êµï¿½ï¿½ï¿½ï¿½ï¿½Î²Êµï¿½å£¬ï¿½ï¿½ï¿½ï¿½ï¿½æ»»Îªï¿½ï¿½ï¿½ï¿½ÖªÊ¶ï¿½ï¿½ï¿½Ðµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Êµï¿½å£¬Ò²ï¿½ï¿½ï¿½Ç»ï¿½ï¿½ï¿½ï¿½nï¿½ï¿½ï¿½ï¿½Ôªï¿½é¡£
+ï¿½Ö±ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½nï¿½ï¿½ï¿½ï¿½Ôªï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Öµ(distÖµ)ï¿½ï¿½ï¿½ï¿½transEï¿½Ð£ï¿½ï¿½ï¿½ï¿½Ç¼ï¿½ï¿½ï¿½h+r-tï¿½ï¿½Öµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ÔµÃµï¿½nï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Öµï¿½ï¿½ï¿½Ö±ï¿½ï¿½Ó¦ï¿½ï¿½ï¿½ï¿½nï¿½ï¿½ï¿½ï¿½Ôªï¿½é¡£
+ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½nï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Öµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+ï¿½ï¿½Â¼Ô­ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ôªï¿½ï¿½aï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Öµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Å¡ï¿½
+ï¿½ï¿½ï¿½ï¿½ï¿½Ð´ï¿½ï¿½Ú²ï¿½ï¿½Ô¼ï¿½ï¿½ÐµÄ²ï¿½ï¿½ï¿½ï¿½ï¿½Ôªï¿½ï¿½ï¿½Ø¸ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ì¡ï¿½
+Ã¿ï¿½ï¿½ï¿½ï¿½È·ï¿½ï¿½Ôªï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Öµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ½ï¿½ï¿½ï¿½ï¿½ï¿½Ãµï¿½ï¿½ï¿½Öµï¿½ï¿½ï¿½Ç³ï¿½ÎªMean Rankï¿½ï¿½
+ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½È·ï¿½ï¿½Ôªï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ð¡ï¿½ï¿½10ï¿½Ä±ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ãµï¿½ï¿½ï¿½Öµï¿½ï¿½ï¿½Ç³ï¿½ÎªHits@10ï¿½ï¿½
+ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ÛµÄ¹ï¿½ï¿½Ì£ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ö¸ï¿½ê£ºMean Rankï¿½ï¿½Hits@10ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Mean RankÔ½Ð¡Ô½ï¿½Ã£ï¿½Hits@10Ô½ï¿½ï¿½Ô½ï¿½Ã¡ï¿½ï¿½Ã´ï¿½ï¿½ï¿½Î´ï¿½ï¿½ï¿½ï¿½Hits@10ï¿½ï¿½ï¿½ï¿½Pythonï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ö´ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ù¶Èºï¿½ï¿½ï¿½ï¿½ï¿½
+ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ßºï¿½ï¿½ï¿½Ê¹ï¿½ï¿½ï¿½å»ªï¿½ï¿½Ñ§ï¿½ï¿½ï¿½Fast_TransXï¿½ï¿½ï¿½ë£¬Ê¹ï¿½ï¿½C++ï¿½ï¿½Ð´ï¿½ï¿½ï¿½ï¿½ï¿½Ü¸ß£ï¿½ï¿½Ü¹ï¿½ï¿½ï¿½ï¿½ÙµÃ³ï¿½Ñµï¿½ï¿½ï¿½Í²ï¿½ï¿½Ô½ï¿½ï¿½ï¿½ï¿½
 '''
 
     def __init__(self, entity_dyct, relation_dyct, train_triple_list,
@@ -57,7 +58,7 @@ class Test:
                     continue
                 rank_dyct[ent] = distance(self.entity_dyct[ent], self.entity_dyct[triplet[1]],
                                           self.relation_dyct[triplet[2]])
-            else:  # ¸ù¾Ý±êÇ©Ìæ»»Í·ÊµÌå»òÕßÌæ»»Î²ÊµÌå¼ÆËã¾àÀë
+            else:  # ï¿½ï¿½ï¿½Ý±ï¿½Ç©ï¿½æ»»Í·Êµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½æ»»Î²Êµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
                 corrupted_triplet = (triplet[0], ent, triplet[2])
                 if self.is_fit and (
                         corrupted_triplet in self.train_triple_list):
@@ -65,7 +66,7 @@ class Test:
                 rank_dyct[ent] = distance(self.entity_dyct[triplet[0]], self.entity_dyct[ent],
                                           self.relation_dyct[triplet[2]])
         sorted_rank = sorted(rank_dyct.items(),
-                             key=operator.itemgetter(1))  # °´ÕÕÔªËØµÄµÚÒ»¸öÓò½øÐÐÉýÐòÅÅÐò
+                             key=operator.itemgetter(1))  # ï¿½ï¿½ï¿½ï¿½Ôªï¿½ØµÄµï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
         if self.label == 'head':
             num_tri = 0
         else:
@@ -167,7 +168,7 @@ def get_dict_from_vector_file(file_path):
     dyct = {}
     for line in file.readlines():
         name_vector = line.strip().split("\t")
-        # ÕâÀïµÄvectorÊ¹ÓÃ[1:-1]ÊÇÒòÎªvectorÊÇ'[0.11,0.22,..]'ÕâÑùµÄstrÀàÐÍ£¬[1:-1]ÊÇÎªÁËÈ¥µôÁÐ±íµÄÖÐÀ¨ºÅ
+        # ï¿½ï¿½ï¿½ï¿½ï¿½vectorÊ¹ï¿½ï¿½[1:-1]ï¿½ï¿½ï¿½ï¿½Îªvectorï¿½ï¿½'[0.11,0.22,..]'ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½strï¿½ï¿½ï¿½Í£ï¿½[1:-1]ï¿½ï¿½Îªï¿½ï¿½È¥ï¿½ï¿½ï¿½Ð±ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
         vector = [float(s) for s in name_vector[1][1:-1].split(", ")]
         name = name_vector[0]
         dyct[name] = vector

@@ -1,3 +1,4 @@
+# -*- coding: UTF-8 -*-
 import timeit
 from TrainTransESimple import prepare_fb15k_train_data
 from TrainTransESimple import TransE
@@ -72,9 +73,9 @@ def main():
             normal_form=args.normal_form)
         logging.info("TransE is initializing...")
         start = timeit.default_timer()
-        for i in range(args.max_epoch):  # epochµÄ´ÎÊý
+        for i in range(args.max_epoch):  # epochï¿½Ä´ï¿½ï¿½ï¿½
             lock = Lock()
-            proces = [Process(target=func1, args=(transE, lock)) for j in range(10)]  # 10¸ö¶à½ø³Ì£¬½÷É÷ÔËÐÐ£¬µçÄÔ»áºÜ¿¨
+            proces = [Process(target=func1, args=(transE, lock)) for j in range(10)]  # 10ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ì£ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ð£ï¿½ï¿½ï¿½ï¿½Ô»ï¿½Ü¿ï¿½
             for p in proces:
                 p.start()
             for p in proces:
@@ -86,7 +87,7 @@ def main():
             start = end
             transE.clear_loss()
     logging.info("********** End TransE training ***********\n")
-    # ÑµÁ·µÄÅú´Î²¢²»Ò»¶¨ÊÇ100µÄÕûÊý±¶£¬½«×îºó¸üÐÂµÄÏòÁ¿Ð´µ½ÎÄ¼þ
+    # Ñµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Î²ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½100ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Âµï¿½ï¿½ï¿½ï¿½ï¿½Ð´ï¿½ï¿½ï¿½Ä¼ï¿½
     transE.write_vector("data/entityVector.txt", "entity")
     transE.write_vector("data/relationVector.txt", "relationship")
 

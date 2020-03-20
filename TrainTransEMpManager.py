@@ -1,3 +1,4 @@
+# -*- coding: UTF-8 -*-
 from multiprocessing import Process, Lock
 from multiprocessing.managers import BaseManager
 import logging
@@ -13,22 +14,24 @@ INITIAL_LEARNING_RATE = 0.01
 class TransE(TransESimple):
 
     def get_loss(self):
-        # ²Î¿¼Çå»ªµÄFast-TransXµÄC++´úÂë£¬È·ÊµËÙ¶ÈºÜ¿ì£¬Python½Ó½ü10¸öĞ¡Ê±µÄÑµÁ·C++´ó¸ÅÔÚÊ®¼¸·ÖÖÓ¼´¿ÉÍê³É¡£´ÖÂÔµÄ¿´ÁËÒ»ÏÂ´úÂë£¬
-        # Ëü¶ÔÔ­±¾µÄÂÛÎÄÖĞµÄSbatch×öÁËĞŞ¸Ä£¬Ö±½Ó½øĞĞÁË£¨×ÜÊıÁ¿ÎªÑµÁ·ÈıÔª×éÊı£¬Ò»¸öepoch·ÖÎª¶à¸öbatchÍê³É£¬Ã¿¸öbatchµÄÃ¿Ò»¸öÈıÔª×é¶¼Ëæ»ú²ÉÑù£©£¬Ëæ»úÌİ¶ÈÏÂ½µ¡£¶àÏß³Ì²¢·¢£¬n¸öbatch¶ÔÓ¦n¸öÏß³Ì
-        # PythonÓÉÓÚÀúÊ·ÒÅÁôÎÊÌâ£¬Ê¹ÓÃÁËGIL£¬È«¾Ö½âÊÍËø£¬Ê¹µÃPythonµÄ¶àÏß³Ì½üËÆ¼¦Àß£¬ÎŞ·¨ÅÜÂú¶àºËcpu£¬ËùÒÔ¿¼ÂÇÊ¹ÓÃ¶à½ø³ÌÓÅ»¯
-        # ÎªÁËÊ¹ÓÃ¶à½ø³Ì£¬Ê¹ÓÃÁËmanager½«transE·â×°ÎªProxy¶ÔÏó¡£ÓÉÓÚProxy¶ÔÏóÎŞ·¨»ñÈ¡·â×°µÄTransEÀàµÄÊôĞÔ£¬ËùÒÔĞèÒªĞ´getº¯Êı½«loss´«³ö¡£
-        # ÁíÍâÖµµÃ×¢ÒâµÄÊÇ£¬PythonµÄ¶à½ø³ÌĞÔÄÜ²»Ò»¶¨ÓÅÓÚforÑ­»·¡£»ù±¾¿ªÏú¾Í°üÀ¨ÁË½ø³ÌµÄ´´½¨ºÍÏú»Ù¡¢ÉÏÏÂÎÄÇĞ»»£¨½ø³Ì¼äĞèÒªRPCÔ¶³ÌÍ¨ĞÅÒÔ×öµ½Àà±äÁ¿¹²Ïí£©¡£
-        # ÖÁÉÙÔÚtrainTransEºÍtrainTransE_MultiProcess¶Ô±ÈÀ´¿´£¬trainTransEµÄforÑ­»·Ò»Åú10¸öºÄÊ±ÔÚ8s-9s£¬trainTransE_MultiProcessµÄÒ»¸öepoch¼´Ò»Åú£¬ºÄÊ±ÔÚ12-13s¡£
-        # ½øÒ»²½ÓÅ»¯·½·¨£º½ø³Ì³Ø£¬ÊµÏÖ½ø³Ì¸´ÓÃ£¿¿ò¼Ü£ºtf£¿£¿
+        # å‚è€ƒæ¸…åçš„Fast-TransXçš„C++ä»£ç ï¼Œç¡®å®é€Ÿåº¦å¾ˆå¿«ï¼ŒPythonæ¥è¿‘10ä¸ªå°æ—¶çš„è®­ç»ƒC++å¤§æ¦‚åœ¨åå‡ åˆ†é’Ÿå³å¯å®Œæˆã€‚ç²—ç•¥çš„çœ‹äº†ä¸€ä¸‹ä»£ç ï¼Œ
+        # å®ƒå¯¹åŸæœ¬çš„è®ºæ–‡ä¸­çš„Sbatchåšäº†ä¿®æ”¹ï¼Œç›´æ¥è¿›è¡Œäº†ï¼ˆæ€»æ•°é‡ä¸ºè®­ç»ƒä¸‰å…ƒç»„æ•°ï¼Œä¸€ä¸ªepochåˆ†ä¸ºå¤šä¸ªbatchå®Œæˆï¼Œæ¯ä¸ªbatchçš„æ¯ä¸€ä¸ªä¸‰å…ƒç»„éƒ½éšæœºé‡‡æ ·ï¼‰ï¼Œéšæœºæ¢¯åº¦ä¸‹é™ã€‚å¤šçº¿ç¨‹å¹¶å‘ï¼Œnä¸ªbatchå¯¹åº”nä¸ªçº¿ç¨‹
+        # Pythonç”±äºå†å²é—ç•™é—®é¢˜ï¼Œä½¿ç”¨äº†GILï¼Œå…¨å±€è§£é‡Šé”ï¼Œä½¿å¾—Pythonçš„å¤šçº¿ç¨‹è¿‘ä¼¼é¸¡è‚‹ï¼Œæ— æ³•è·‘æ»¡å¤šæ ¸cpuï¼Œæ‰€ä»¥è€ƒè™‘ä½¿ç”¨å¤šè¿›ç¨‹ä¼˜åŒ–
+        # ä¸ºäº†ä½¿ç”¨å¤šè¿›ç¨‹ï¼Œä½¿ç”¨äº†managerå°†transEå°è£…ä¸ºProxyå¯¹è±¡ã€‚ç”±äºProxyå¯¹è±¡æ— æ³•è·å–å°è£…çš„TransEç±»çš„å±æ€§ï¼Œæ‰€ä»¥éœ€è¦å†™getå‡½æ•°å°†lossä¼ å‡ºã€‚
+        # å¦å¤–å€¼å¾—æ³¨æ„çš„æ˜¯ï¼ŒPythonçš„å¤šè¿›ç¨‹æ€§èƒ½ä¸ä¸€å®šä¼˜äºforå¾ªç¯ã€‚åŸºæœ¬å¼€é”€å°±åŒ…æ‹¬äº†è¿›ç¨‹çš„åˆ›å»ºå’Œé”€æ¯ã€ä¸Šä¸‹æ–‡åˆ‡æ¢ï¼ˆè¿›ç¨‹é—´éœ€è¦RPCè¿œç¨‹é€šä¿¡ä»¥åšåˆ°ç±»å˜é‡å…±äº«ï¼‰ã€‚
+        # è‡³å°‘åœ¨trainTransEå’ŒtrainTransE_MultiProcesså¯¹æ¯”æ¥çœ‹ï¼ŒtrainTransEçš„forå¾ªç¯ä¸€æ‰¹10ä¸ªè€—æ—¶åœ¨8s-9sï¼ŒtrainTransE_MultiProcessçš„ä¸€ä¸ªepochå³ä¸€æ‰¹ï¼Œè€—æ—¶åœ¨12-13sã€‚
+        # è¿›ä¸€æ­¥ä¼˜åŒ–æ–¹æ³•ï¼šè¿›ç¨‹æ± ï¼Œå®ç°è¿›ç¨‹å¤ç”¨ï¼Ÿæ¡†æ¶ï¼štfï¼Ÿï¼Ÿ
         return self.loss
 
     def clear_loss(self):
-        # ¸Ãº¯ÊıÒ²ÊÇÎªÁËProxy¶ÔÏóÍâ²¿½«ËğÊ§ÖÃ0
+        # è¯¥å‡½æ•°ä¹Ÿæ˜¯ä¸ºäº†Proxyå¯¹è±¡å¤–éƒ¨å°†æŸå¤±ç½®0
         self.loss = 0
 
     def transE(self):
+        # è¿™ä¸ªåœ°æ–¹å’Œçˆ¶ç±»çš„transEçš„åŒºåˆ«åœ¨äºï¼Œè¿™é‡Œç”±äºæ˜¯å¤šè¿›ç¨‹ä¹‹é—´ç›´æ¥å…±äº«class TransEçš„å®ä¾‹ï¼Œæ‰€ä»¥ç°åœ¨å¹¶ä¸çŸ¥é“å¯¹åº”çš„
+        # è®­ç»ƒepochï¼Œäºæ˜¯è¿™ä¸ªåœ°æ–¹åˆ æ‰äº†åŸæœ¬çš„å†™æ–‡ä»¶å‡½æ•°
         Sbatch = self.sample(self.batch_size // 10)
-        Tbatch = []  # Ôª×é¶Ô£¨Ô­ÈıÔª×é£¬´òËéµÄÈıÔª×é£©µÄÁĞ±í £º{((h,r,t),(h',r,t'))}
+        Tbatch = []  # å…ƒç»„å¯¹ï¼ˆåŸä¸‰å…ƒç»„ï¼Œæ‰“ç¢çš„ä¸‰å…ƒç»„ï¼‰çš„åˆ—è¡¨ ï¼š{((h,r,t),(h',r,t'))}
         for sbatch in Sbatch:
             pos_neg_triplets = (sbatch, self.get_corrupted_triplets(sbatch))
             if pos_neg_triplets not in Tbatch:
@@ -66,10 +69,10 @@ def main():
         margin=1,
         dim=50)
     logging.info("TransE is initializing...")
-    for i in range(20000):  # epochµÄ´ÎÊı
+    for i in range(2000):  # epochçš„æ¬¡æ•°
         lock = Lock()
         proces = [Process(target=func1, args=(transE, lock))
-                  for j in range(10)]  # 10¸ö¶à½ø³Ì£¬½÷É÷ÔËĞĞ£¬µçÄÔ»áºÜ¿¨
+                  for j in range(10)]  # 10ä¸ªå¤šè¿›ç¨‹ï¼Œè°¨æ…è¿è¡Œï¼Œç”µè„‘ä¼šå¾ˆå¡
         for p in proces:
             p.start()
         for p in proces:
@@ -78,6 +81,9 @@ def main():
             logging.info(
                 "After %d training epoch(s), loss on batch data is %g" %
                 (i * 10, transE.get_loss()))
+        if i % 100 == 0:
+            transE.write_vector("data/entityVectorMpManager.txt", "entity")
+            transE.write_vector("data/relationVectorMpManager.txt", "rels")
         transE.clear_loss()
     # transE.transE(100000)
     logging.info("********** End TransE training ***********\n")

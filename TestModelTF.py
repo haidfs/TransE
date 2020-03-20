@@ -1,3 +1,4 @@
+# -*- coding: UTF-8 -*-
 import timeit
 import numpy as np
 import tensorflow as tf
@@ -45,9 +46,9 @@ class TransE:
             relation = tf.nn.embedding_lookup(
                 self.relation_embedding, eval_triple[2])
         with tf.name_scope('link'):
-            # ²¢²»Ì«Ã÷È·ÕâÀïµÄÓÃÍ¾£¬h,r,tÓ¦¸Ã¶¼ÊÇ[1,dim]Î¬¶ÈµÄÏòÁ¿£¬ self.entity_embeddingÓ¦¸ÃÊÇ[n,dim]Î¬¶ÈµÄÏòÁ¿£¬×ö¼Ó¼õ·¨µÃµ½µÄÊÇÊ²Ã´ÀàĞÍ£¿
-            # Èç¹ûÊÇlistÀàĞÍ£¬¶ÔÓÚ²»Í¬Î¬¶ÈÊÇ²»ÄÜÖ±½Ó¼Ó¼õµÄ¡£µ«ÊÇ¶ÔÓÚnp.array»òÕßtfµÄembedding£¬ÊÇ¿ÉÒÔÖ±½ÓÏà¼õµÄ£¬µÈÍ¬ÓÚ self.entity_embedding
-            # µÄÃ¿Ò»ĞĞ¶¼ÔÚºÍh,r,t×öÔËËã
+            # ï¿½ï¿½ï¿½ï¿½Ì«ï¿½ï¿½È·ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Í¾ï¿½ï¿½h,r,tÓ¦ï¿½Ã¶ï¿½ï¿½ï¿½[1,dim]Î¬ï¿½Èµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ self.entity_embeddingÓ¦ï¿½ï¿½ï¿½ï¿½[n,dim]Î¬ï¿½Èµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ó¼ï¿½ï¿½ï¿½ï¿½Ãµï¿½ï¿½ï¿½ï¿½ï¿½Ê²Ã´ï¿½ï¿½ï¿½Í£ï¿½
+            # ï¿½ï¿½ï¿½ï¿½ï¿½listï¿½ï¿½ï¿½Í£ï¿½ï¿½ï¿½ï¿½Ú²ï¿½Í¬Î¬ï¿½ï¿½ï¿½Ç²ï¿½ï¿½ï¿½Ö±ï¿½Ó¼Ó¼ï¿½ï¿½Ä¡ï¿½ï¿½ï¿½ï¿½Ç¶ï¿½ï¿½ï¿½np.arrayï¿½ï¿½ï¿½ï¿½tfï¿½ï¿½embeddingï¿½ï¿½ï¿½Ç¿ï¿½ï¿½ï¿½Ö±ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ä£ï¿½ï¿½ï¿½Í¬ï¿½ï¿½ self.entity_embedding
+            # ï¿½ï¿½Ã¿Ò»ï¿½Ğ¶ï¿½ï¿½Úºï¿½h,r,tï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
             distance_head_prediction = self.entity_embedding + relation - tail
             distance_tail_prediction = head + relation - self.entity_embedding
         with tf.name_scope('rank'):
