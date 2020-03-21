@@ -13,15 +13,14 @@
 将TransE类的实例在多进程之间传递
 #### Queue版本
 ./train_fb15k.sh 2
-将TransE类的训练数据传入队列，减小进程开销，加快训练速度
-当训练完成之后，再进行测试
+将TransE类的训练数据传入队列，减小进程开销，加快训练速度  
+### 注意事项
+1. 当训练完成之后，再进行测试。  
+2. 测试代码需要在Linux环境执行，Windows环境多进程速度慢，且多进程有bug！！！
 ### 测试部分
-#### TestTransEMqQueue
-python TestTransEMpQueue.py
-多进程队列测试加速，效果不明显，单个测试例0.5s，测试结束需要近5h。
 #### TestMainTF
  python TestMainTF.py
-tf与多进程测试加速，效果显著，测试结束仅需要8min左右。
+tf与多进程测试加速，效果显著，Linux环境128G服务器，测试结束仅需要8min左右。
 ### 最终测试结果
 ![image](https://github.com/haidfs/TransE/blob/master/images/TestResult.png)
 ### THANKS TO
