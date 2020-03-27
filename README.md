@@ -3,6 +3,18 @@
 后续如继续进行论文阅读会补充相应的代码  
 2.TransE论文地址： https://www.utc.fr/~bordesan/dokuwiki/_media/en/transe_nips13.pdf  
 3.TransE SGD解释与代码简单解释： https://blog.csdn.net/weixin_42348333/article/details/89598144  
+### 环境配置与前置技术要求：
+#### 环境配置
+CPU 24  Intel(R) Xeon(R) CPU E5-2620 v3 @ 2.40GHz  
+内存 128G  
+系统 CentOS Linux release 7.5.1804 (Core)  
+#### 涉及到的技术点
+Linux基本操作与shell脚本简单语法 利用shell脚本去进行训练，避免使用Python文件中的main函数去训练  
+git基本操作  
+Python的多进程  可以参考https://blog.csdn.net/weixin_42348333/article/details/105126470  
+TensorFlow 常用API  
+Pycharm debug与pdb debug  
+对论文的训练和评估细节的深刻理解  
 
 ### 训练部分
 #### Simple版本
@@ -23,7 +35,7 @@
 tf与多进程测试加速，效果显著，Linux环境128G服务器，测试结束仅需要8min左右。
 ### 最终测试结果
 ![image](https://github.com/haidfs/TransE/blob/master/images/TestResult.png)
-### THANKS TO
+### THANKS
 感谢两位前辈的代码，基本是在他们的基础上学习整理  
 https://github.com/wuxiyu/transE  
 https://github.com/ZichaoHuang/TransE
